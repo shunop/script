@@ -40,10 +40,11 @@ OPTIONS:
 
 ```properties
 #!#DO_INSTALL=FALSE
-#!#VERSION=1.0.1
-## 20210114_133830
+#!#VERSION=v1.0.2
+## 20210116_185808
 ## 确保指定的安装目录下没有同名的软件,否则会掉跳过安装
 ## 支持行首带'#'的注释,安装时自动跳过注释行
+## 行格式[安装包名:(0|1|2):密码]
 ## ':'后可指定的参数'0|1|2'
 ## '0'是安装到默认目录[/Applications]
 ## '1'是安装到脚本自定义目录[/Applications/dragInstallation]
@@ -53,6 +54,7 @@ OPTIONS:
 Firefox 84.0.2.dmg:2
 # folx-downloader_mac.dmg:2
 googlechrome.dmg:2
+XZ 2020 for Mac 10.0.1.dmg:2:password
 ```
 
 
