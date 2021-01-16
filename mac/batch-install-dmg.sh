@@ -1,27 +1,14 @@
 #!/bin/bash
-# ahthor: shunop
+# author: shunop
 # version: 1.0.1
-# todook: 完成单个dmg安装功能
-# todook: 增加文件夹内所有批量安装功能
-# todook: 解决路径空格问题,解决挂载磁盘空格问题
-# todook: 根据配置文件批量安装
-# todook: 把生成配置文件的命令封装到工具中
-# todook: 增加交互式菜单
-# todook: 增加动态参数式菜单并弃用交互式菜单
-# todook: 在配置文件中设置安装开关
-# todook: 校验配置文件的版本号
-# todook: 校验目标位置有重名的就跳过
-# todook: 增加安装日志输出到文件
 # todo: 安装前校验dmg文件是否存在
 # todo: 需要密码的dmg文件怎么处理
-# tood: 检查目标文件夹是否存在,否则创建
+# todo: 检查目标文件夹是否存在,否则创建
 declare v_author="shunop"
 declare v_name="batch-install-dmg.sh"
 declare v_version="1.0.1"
 
 # ## 声明路径映射关系
-### 旧版本(4版本以前)的bash不支持 declare -A 声明关联数组(即map结构)
-### declare: usage: declare [-afFirtx] [-p] [name[=value] ...]
 declare v_path_map_arr
 v_path_map_arr[0]="/Applications"
 v_path_map_arr[1]="/Applications/0-dragInstallation"
@@ -32,8 +19,7 @@ declare v_head_flag_true="#!#DO_INSTALL=TRUE"
 declare v_head_flag_false="#!#DO_INSTALL=FALSE"
 declare v_version_flag="#!#VERSION=${v_version}"
 
-#### 安装dmg的方法
-#### 挂载dmg, 把里面的app拷贝到指定目录, 推出dmg
+#### 安装dmg的方法: 挂载dmg, 把里面的app拷贝到指定目录, 推出dmg
 #### open -> install -> close
 function f_do_dmg_install() {
   v_dmg_path=$1
@@ -237,18 +223,15 @@ function f_interactive_menu() {
   done
 }
 
-## 交互式菜单,已弃用
-## f_interactive_menu $@
-
 ## 输出帮助信息
 function f_manual() {
   text="支持的操作: [cidhnVZ]
 使用说明: bash ${v_name} [-cihVZ] -d [dir_path] [-n config_name]
 OPTIONS:
-	-c: 生成配置文件默认配置,需修改 (c|i 二者不能同时存在)
-	-i: 根据配置文件,执行批量安装操作 (c|i 二者不能同时存在)
+	-c: 生成配置文件默认配置,需修改 (-c|-i 二者不能同时存在)
+	-i: 根据配置文件,执行批量安装操作 (-c|-i 二者不能同时存在)
 	-d: dmg镜像所在文件夹的位置 (必选 后面必须跟参数)
-		需要与 c|i 配合使用 eg: (-c -d) (-i -d)
+		需要与 (-c|-i) 配合使用 eg: (-c -d) (-i -d)
 	-h: 输出帮助信息 (可选)
 	-n: 指定配置文件名 (可选)
 	-V: 输出版本信息 (可选)
