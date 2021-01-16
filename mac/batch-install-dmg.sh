@@ -4,9 +4,8 @@
 ## Modified： 2021-01-16
 ## Version： v1.0.2
 
-# todook: 安装前校验dmg文件是否存在
-# todook: 需要密码的dmg文件怎么处理
-# todook: 检查目标文件夹是否存在,否则创建
+# todo: 支持pkg的安装
+# todo: 支持zip的安装
 
 declare v_author="shunop"
 declare v_name="batch-install-dmg.sh"
