@@ -1,17 +1,20 @@
 #!/bin/bash
-# author: shunop
-# version: 1.0.1
+## Author: shunop
+## Source: https://github.com/shunop/script
+## Modified： 2021-01-16
+## Version： v1.0.1
+
 # todo: 安装前校验dmg文件是否存在
 # todo: 需要密码的dmg文件怎么处理
 # todo: 检查目标文件夹是否存在,否则创建
 declare v_author="shunop"
 declare v_name="batch-install-dmg.sh"
-declare v_version="1.0.1"
+declare v_version="v1.0.1"
 
 # ## 声明路径映射关系
 declare v_path_map_arr
 v_path_map_arr[0]="/Applications"
-v_path_map_arr[1]="/Applications/0-dragInstallation"
+v_path_map_arr[1]="/Applications/dragInstallation"
 v_path_map_arr[2]="$HOME/Desktop/bidsh_test"
 
 ## 校验用的常量
@@ -41,7 +44,6 @@ function f_do_dmg_install() {
   ## 说明:由于路径可能带空格,所以作为参数使用的时候要 "$v_VOLUME"
 
   ## 3.校验包下有几个 .app 文件
-  ## 统计里面有几个 .app 文件
   v_count_app=$(ls -al "$v_VOLUME" | grep ".app$" | wc -l)
   ## 要打印的包内内容
   v_str=$(ls -al "$v_VOLUME" | grep ".app$")
@@ -64,7 +66,6 @@ function f_do_dmg_install() {
   ## 进行安装
   if [[ "TRUE" == "$v_isok_installcheck" ]]; then
     v_format_datetime="$(date "+%Y%m%d_%H%M%S")"
-    # v_log_path=
     echo -e "\\t✅ ☀️  执行安装动作 time: ${v_format_datetime}"
     echo "${v_format_datetime}:${v_name}:${v_version}:copy:\"${v_app_name}\":\"${v_dmg_path}\"" >>"$v_dest_path"/batch-install-dmg.log
 
@@ -168,13 +169,13 @@ function f_build_config() {
 
   v_text="#!#DO_INSTALL=FALSE
 #!#VERSION=${v_version}
-###$v_format_datetime
-# 确保指定的安装目录下没有同名的软件,否则会掉跳过安装
-# 支持行首带'#'的注释,安装时自动跳过注释行
-# ':'后可指定的参数'0|1|2'
-# '0'是安装到默认目录[${v_path_map_arr[0]}]
-# '1'是安装到脚本自定义目录[${v_path_map_arr[1]}]
-# '2'是安装到测试目录[${v_path_map_arr[2]}]"
+## $v_format_datetime
+## 确保指定的安装目录下没有同名的软件,否则会掉跳过安装
+## 支持行首带'#'的注释,安装时自动跳过注释行
+## ':'后可指定的参数'0|1|2'
+## '0'是安装到默认目录[${v_path_map_arr[0]}]
+## '1'是安装到脚本自定义目录[${v_path_map_arr[1]}]
+## '2'是安装到测试目录[${v_path_map_arr[2]}]"
   echo -e "${v_text}" >"${v_config_path}"
 
   ls "$v_dir_path" | grep -i ".dmg$" | sort -f | sed "s/$/&\\:2/g" >>"${v_config_path}"
@@ -182,51 +183,10 @@ function f_build_config() {
   echo -e "🔅  需要手动修改文件配置为[#!#DO_INSTALL=TRUE]\\n\\t注意\\t1.指定安装目录\\n\\t\\t2.不用安装的app注释掉\\n\\t\\t3.确保指定的安装目录下没有同名的软件,否则会掉跳过安装"
 }
 
-## 交互式菜单,已弃用
-function f_interactive_menu() {
-  select option in "Exit menu(退出)" "Create configuration(生成配置文件)" "Install according to configuration(根据配置文件安装)"; do
-    case $option in
-    *)
-      ## 第一个是 * 的话就是所有参数都会走这里
-      echo "⚠️  未执行任何操作,此菜单已弃用"
-      exit 1
-      ;;
-    "Exit menu(退出)")
-      echo "🔅  退出"
-      break
-      ;;
-    "Create configuration(生成配置文件)")
-      echo "🔅  生成配置文件"
-      echo -e "\t1.输入的路径不能包含空格;"
-      echo -e "\t2.输入的路径结尾不能带/;"
-      echo -e "\t3.如果该路径下存在[batch-install-dmg.properties]的文件会覆盖;"
-      read -n 1 -p "是否继续?(y/n): " flag
-      if [[ ! "y" == "$flag" ]]; then
-        break
-      fi
-      echo ""
-      read -r -p "输入dmg所在文件夹绝对路径: " path
-      # f_build_config $path
-      break
-      ;;
-    "Install according to configuration(根据配置文件安装)")
-      echo "🔅  根据配置文件安装"
-      read -r -p "输入配置文件路径: " path
-      echo $path
-      echo "⚠️  未执行任何操作,此菜单已弃用"
-      break
-      ;;
-    *)
-      echo "sorry,wrong selection"
-      ;;
-    esac
-  done
-}
-
 ## 输出帮助信息
 function f_manual() {
-  text="支持的操作: [cidhnVZ]
-使用说明: bash ${v_name} [-cihVZ] -d [dir_path] [-n config_name]
+  text="支持的操作: [cidhnV]
+使用说明: bash ${v_name} [-cihV] -d [dir_path] [-n config_name]
 OPTIONS:
 	-c: 生成配置文件默认配置,需修改 (-c|-i 二者不能同时存在)
 	-i: 根据配置文件,执行批量安装操作 (-c|-i 二者不能同时存在)
@@ -235,8 +195,7 @@ OPTIONS:
 	-h: 输出帮助信息 (可选)
 	-n: 指定配置文件名 (可选)
 	-V: 输出版本信息 (可选)
-	-Z: (已弃用)进入交互式菜单 (可选)
-使用案例: 
+使用案例:
 	step1. 创建配置文件
 		bash batch-install-dmg.sh -c -d ~/Downloads
 	step2. 执行批量安装操作
@@ -254,7 +213,7 @@ OPTIONS:
 
 ## 无人值守的菜单
 function f_unattended_menu() {
-  while getopts "d:n:cihVZ" opts; do
+  while getopts "d:n:cihV" opts; do
     case $opts in
     c)
       ## v_creat_config:生成配置文件模式
@@ -279,10 +238,6 @@ function f_unattended_menu() {
       ;;
     V)
       echo "$v_version"
-      exit 0
-      ;;
-    Z)
-      f_interactive_menu
       exit 0
       ;;
     ?)
