@@ -3,11 +3,15 @@
 ## Source: https://github.com/shunop/script
 ## Created: 2019-12-27
 ## Modified： 2021-01-23
-## Version： v1.0.0
+## Version： v1.1.0
 ## Description: Auto save|shutdown|update|restart dst.
 
 v_screen_master=$"master"
 v_screen_caves=$"caves"
+v_persistent_storage_root="$HOME/dstserver"
+v_conf_dir="dstconfig"
+v_cluster="World1"
+v_name="automatic-dst.sh"
 
 function f_exists_screen() {
   v_screen_name="$1"
@@ -42,7 +46,7 @@ function f_shutdown_dst() {
   if [[ 0 -eq $? ]]; then
     screen -S $v_screen_name -p 0 -X stuff "$v_cmd_shutdown"
     echo "shutdown: $v_screen_name"
-    #f_tail_server_log "$v_screen_name";
+    #f_wail_server_shutdown "$v_screen_name";
     #res1=$(screen -S $v_screen_name -p 0 -X stuff $"ls \n");
     #echo -e "$res1";
   fi
@@ -56,18 +60,16 @@ function f_send_announce() {
   if [[ 0 -eq $? ]]; then
     screen -S $v_screen_name -p 0 -X stuff "$v_cmd_announce"
     echo "send: $v_screen_name $v_cmd_announce"
-    #f_tail_server_log "$v_screen_name";
-    #res1=$(screen -S $v_screen_name -p 0 -X stuff $"ls \n");
-    #echo -e "$res1";
   fi
 }
 
-function f_tail_server_log() {
+function f_wail_server_shutdown() {
   v_screen_name="$1"
-  v_server_log_file=$"/home/steamgame/dst/dst/World1/Master/server_log.txt"
+  ## /home/steamgame/dstserver/dstconfig/World1/Master/server_log.txt
+  v_server_log_file="${v_persistent_storage_root}/${v_conf_dir}/${v_cluster}/Master/server_log.txt"
   ## Replace command
   if [ "$v_screen_caves" = "$v_screen_name" ]; then
-    v_server_log_file="/home/steamgame/dst/dst/World1/Caves/server_log.txt"
+    v_server_log_file="${v_persistent_storage_root}/${v_conf_dir}/${v_cluster}/Caves/server_log.txt"
   fi
   ## check file
   if [ ! -f $v_server_log_file ]; then
@@ -92,10 +94,9 @@ function f_tail_server_log() {
 
 function f_start_dst() {
   v_screen_name="$1"
-  cmd_cd=$"cd /home/steamgame/dst/bin/ \n"
-  cmd_master=$"sh master_start.sh \n"
-  cmd_caves=$"sh cave_start.sh \n"
-  cmd_start_sh=$"ls \n"
+  cmd_master="sh ${v_persistent_storage_root}/bin/master_start.sh \n"
+  cmd_caves="sh ${v_persistent_storage_root}/bin/cave_start.sh \n"
+  cmd_start_sh=""
 
   ## Replace command
   if [ "$v_screen_master" = "$v_screen_name" ]; then
@@ -103,7 +104,7 @@ function f_start_dst() {
   elif [ "$v_screen_caves" = "$v_screen_name" ]; then
     cmd_start_sh="$cmd_caves"
   else
-    echo -e "$err Invalid paramter "
+    echo "Invalid paramter "
     exit 1
   fi
   ## Determine if the screen exists
@@ -111,21 +112,20 @@ function f_start_dst() {
   if [[ 0 -ne $? ]]; then
     ## create screen and detach it
     if [ "init" = "$2" ]; then
-      echo -e "create the screen: $v_screen_name"
+      echo "create the screen: $v_screen_name"
       screen -dmS $v_screen_name
     else
-      echo -e "The screen is not exists and param is not init: $v_screen_name "
+      echo "The screen is not exists and param is not init: $v_screen_name "
       exit 1
     fi
   fi
   ## Send commands to the offline screen
-  screen -S $v_screen_name -p 0 -X stuff "$cmd_cd"
   screen -S $v_screen_name -p 0 -X stuff "$cmd_start_sh"
-  echo -e "end"
+  echo "start success"
 }
 
 function update_dst() {
-  sh /home/steamgame/steamcmd/steamcmd.sh +login anonymous +force_install_dir /home/steamgame/dst +app_update 343050 validate +quit
+  sh $HOME/steamcmd/steamcmd.sh +login anonymous +force_install_dir "${v_persistent_storage_root}" +app_update 343050 validate +quit
   #	sh /home/steamgame/steamcmd/steamcmd.sh +login anonymous +force_install_dir /home/steamgame/dst +app_update 343050 validate +quit > ./dst_update.log
 }
 
@@ -148,7 +148,7 @@ elif [ "shutdown" = "$1" ]; then
   f_save_dst "$v_screen_master"
   f_shutdown_dst "$v_screen_caves"
   f_shutdown_dst "$v_screen_master"
-  f_tail_server_log "$v_screen_master"
+  f_wail_server_shutdown "$v_screen_master"
   #echo -e 'The result:'$?;
 elif [ "updatedst" = "$1" ]; then
   update_dst
@@ -159,7 +159,7 @@ elif [ "SUR" = "$1" ]; then
   f_save_dst "$v_screen_master"
   f_shutdown_dst "$v_screen_caves"
   f_shutdown_dst "$v_screen_master"
-  f_tail_server_log "$v_screen_master"
+  f_wail_server_shutdown "$v_screen_master"
   sleep 10s
   update_dst
   f_start_dst "$v_screen_caves"
@@ -167,6 +167,12 @@ elif [ "SUR" = "$1" ]; then
 else
   echo -e "\033[33m \t--help.main: Parameter must be [ initmaster | initcaves | shutdown | updatedst | restart | SUR ] \033[0m"
   echo -e "\033[33m \t   SUR : shutdown and updatedst and restart \033[0m"
+  echo ""
+  echo -e "\033[33m \t step1  bash ${v_name} initmaster \033[0m"
+  echo -e "\033[33m \t [step2]  bash ${v_name} initcaves \033[0m"
+  echo -e "\033[33m \t step3  bash ${v_name} updatedst \033[0m"
+  echo -e "\033[33m \t step4  bash ${v_name} restart \033[0m"
+  echo -e "\033[33m \t by and by  bash ${v_name} SUR \033[0m"
 fi
 
 echo $(date +%F%n%T)
