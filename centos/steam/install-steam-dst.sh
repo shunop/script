@@ -48,7 +48,7 @@ cluster_key = defaultPass"
 ## 2.下载steamcmd
 mkdir ~/steamcmd &&
   cd ~/steamcmd &&
-  echo "====[2/5] download steamcmd====" &&
+  echo "====[2/6] download steamcmd====" &&
   wget https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz &&
   tar -zxf steamcmd_linux.tar.gz &&
 
@@ -58,24 +58,24 @@ mkdir ~/steamcmd &&
   ## +app_update 343050 安装的id为343050的app
   ## validate 校验完整性
   ## +quit 退出
-  echo "====[3/5] download dst====" &&
+  echo "====[3/6] download dst====" &&
   sh ~/steamcmd/steamcmd.sh +login anonymous +force_install_dir ~/dstserver +app_update 343050 validate +quit &&
 
   ## 检查依赖完整性
-  echo "====[3.2/5] download dst====" &&
-  ldd dontstarve_dedicated_server_nullrenderer &&
+  echo "====[4/6] Check dependency integrity====" &&
+  ldd ~/dstserver/bin/dontstarve_dedicated_server_nullrenderer &&
   ## 报错解决
-  ## ln -s /usr/lib/libcurl.so.4 ~/dst/bin/lib32/libcurl-gnutls.so.4
+  ln -s /usr/lib/libcurl.so.4 ~/dstserver/bin/lib32/libcurl-gnutls.so.4 &&
 
   ## 4.创建启动脚本
-  echo "====[4/5] create start script====" &&
+  echo "====[5/6] create start script====" &&
   cd ~/dstserver/bin &&
   echo "sh ~/dstserver/bin/dontstarve_dedicated_server_nullrenderer -console -persistent_storage_root ~/dstserver -conf_dir dstconfig -cluster World1 -shard Master" >master_start.sh &&
   echo "sh ~/dstserver/bin/dontstarve_dedicated_server_nullrenderer -console -persistent_storage_root ~/dstserver -conf_dir dstconfig -cluster World1 -shard Caves" >cave_start.sh &&
   chmod u+x cave_start.sh master_start.sh &&
 
   ## 5.创建配置文件
-  echo "====[5/5] create config file====" &&
+  echo "====[6/6] create config file====" &&
   mkdir -p ~/dstserver/dstconfig/World1/ &&
   cd ~/dstserver/dstconfig/World1/ &&
   ##
