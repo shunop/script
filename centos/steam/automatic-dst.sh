@@ -172,8 +172,8 @@ elif [ "load" == "$1" ]; then
 
   ## curl -o ~/crontab/${v_name} https://raw.githubusercontent.com/shunop/script/main/centos/steam/automatic-dst.sh
   curl -fsSL https://raw.githubusercontent.com/shunop/script/main/centos/steam/automatic-dst.sh >~/crontab/${v_name} &&
-    crontab -l 1>conf2021 2>/dev/null &&
-    echo "0 8 * * * /bin/bash ${HOME}/crontab/${v_name} SUR  >  ${HOME}/crontab/automatic-dst.log  2>&1 &" >>conf2021 &&
+    crontab -l 1>conf2021 2>/dev/null
+  echo "0 8 * * * /bin/bash ${HOME}/crontab/${v_name} SUR  >  ${HOME}/crontab/automatic-dst.log  2>&1 &" >>conf2021 &&
     crontab conf2021 &&
     rm -f conf2021
 
