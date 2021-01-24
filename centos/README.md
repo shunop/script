@@ -8,7 +8,11 @@
 
 ```shell
 bash <(curl -fsSL https://raw.githubusercontent.com/shunop/script/main/centos/steam/automatic-dst.sh) load
+```
+
 或者
+
+```shell
 curl -fsSL https://raw.githubusercontent.com/shunop/script/main/centos/steam/automatic-dst.sh | bash -s load
 ```
 
