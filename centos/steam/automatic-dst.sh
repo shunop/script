@@ -116,7 +116,7 @@ function f_start_dst() {
       screen -dmS $v_screen_name
     else
       echo "The screen is not exists and param is not init: $v_screen_name "
-      exit 1
+      return 99
     fi
   fi
   ## Send commands to the offline screen
