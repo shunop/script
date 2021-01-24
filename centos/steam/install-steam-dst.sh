@@ -70,8 +70,8 @@ mkdir ~/steamcmd &&
   ## 4.创建启动脚本
   echo "====[5/6] create start script====" &&
   cd ~/dstserver/bin &&
-  echo "sh ~/dstserver/bin/dontstarve_dedicated_server_nullrenderer -console -persistent_storage_root ~/dstserver -conf_dir dstconfig -cluster World1 -shard Master" >master_start.sh &&
-  echo "sh ~/dstserver/bin/dontstarve_dedicated_server_nullrenderer -console -persistent_storage_root ~/dstserver -conf_dir dstconfig -cluster World1 -shard Caves" >cave_start.sh &&
+  echo "cd ~/dstserver/bin && ./dontstarve_dedicated_server_nullrenderer -console -persistent_storage_root ~/dstserver -conf_dir dstconfig -cluster World1 -shard Master" >master_start.sh &&
+  echo "cd ~/dstserver/bin && ./dontstarve_dedicated_server_nullrenderer -console -persistent_storage_root ~/dstserver -conf_dir dstconfig -cluster World1 -shard Caves" >cave_start.sh &&
   chmod u+x cave_start.sh master_start.sh &&
 
   ## 5.创建配置文件

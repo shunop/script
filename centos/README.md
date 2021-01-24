@@ -12,3 +12,30 @@
 useradd -m steamgame && su - steamgame -c bash -c "$(curl -fsSL https://raw.githubusercontent.com/shunop/script/main/centos/steam/install-steam-dst.sh)"
 ```
 
+若已经创建好该用户则执行
+
+```shell
+su - steamgame -c bash -c "$(curl -fsSL https://raw.githubusercontent.com/shunop/script/main/centos/steam/install-steam-dst.sh)"
+```
+
+> 需要到 raw.githubusercontent.com 上拉取代码
+>
+> 报错解决curl: (7) Failed connect to raw.githubusercontent.com:443; Connection refused
+>
+> https://github.com/hawtim/blog/issues/10
+>
+> **解决方案**
+>
+> 打开 https://www.ipaddress.com/ 输入访问不了的域名, 查询之后可以获得正确的 IP 地址, 在本机的 host 文件中添加
+>
+> 比如
+>
+> ```shell
+> echo "199.232.68.133 raw.githubusercontent.com" >> /etc/hosts
+> ```
+>
+> 199.232.68.133 raw.githubusercontent.com
+> 199.232.68.133 user-images.githubusercontent.com
+> 199.232.68.133 avatars2.githubusercontent.com
+> 199.232.68.133 avatars1.githubusercontent.com
+
