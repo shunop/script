@@ -2,9 +2,21 @@
 
 
 
-## centos/steam/install-steam-dst.sh
+## steam/automatic-dst.sh
+
+> 一键更新重启脚本, 可配合crontab使用
+
+```shell
+bash <(curl -fsSL https://raw.githubusercontent.com/shunop/script/main/centos/steam/automatic-dst.sh) load
+或者
+curl -fsSL https://raw.githubusercontent.com/shunop/script/main/centos/steam/automatic-dst.sh | bash -s load
+```
 
 
+
+## steam/install-steam-dst.sh
+
+>一键安装dst脚本
 
 创建 `steamgame` 用户, 并在此用户下执行 `dst` 安装脚本
 

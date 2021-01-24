@@ -164,6 +164,19 @@ elif [ "SUR" = "$1" ]; then
   update_dst
   f_start_dst "$v_screen_caves"
   f_start_dst "$v_screen_master"
+elif [ "load" == "$1" ]; then
+  if [[ ! -d "$HOME/crontab" ]]; then
+    ## echo "创建目录: $HOME/crontab"
+    mkdir $HOME/crontab
+  fi
+
+  ## curl -o ~/crontab/${v_name} https://raw.githubusercontent.com/shunop/script/main/centos/steam/automatic-dst.sh
+  curl -fsSL https://raw.githubusercontent.com/shunop/script/main/centos/steam/automatic-dst.sh >~/crontab/${v_name} &&
+    crontab -l >conf2021 &&
+    echo "0 8 * * * /bin/bash ${HOME}/crontab/${v_name} SUR  >  ${HOME}/crontab/automatic-dst.log  2>&1 &" >>conf2021 &&
+    crontab conf2021 &&
+    rm -f conf2021
+
 else
   echo -e "\033[33m \t--help.main: Parameter must be [ initmaster | initcaves | shutdown | updatedst | restart | SUR ] \033[0m"
   echo -e "\033[33m \t   SUR : shutdown and updatedst and restart \033[0m"
