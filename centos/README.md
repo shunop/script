@@ -6,6 +6,14 @@
 
 > 一键更新重启脚本, 可配合crontab使用
 
+- 下载脚本[可选]
+
+```shell
+curl -O https://raw.githubusercontent.com/shunop/script/main/centos/steam/automatic-dst.sh
+```
+
+- 添加自动更新重启定时任务
+
 ```shell
 bash <(curl -fsSL https://raw.githubusercontent.com/shunop/script/main/centos/steam/automatic-dst.sh) load
 ```
@@ -34,7 +42,25 @@ useradd -m steamgame && su - steamgame -c bash -c "$(curl -fsSL https://raw.gith
 su - steamgame -c bash -c "$(curl -fsSL https://raw.githubusercontent.com/shunop/script/main/centos/steam/install-steam-dst.sh)"
 ```
 
-> 需要到 raw.githubusercontent.com 上拉取代码
+
+
+## install-shadowsocks.sh
+
+> 一键安装ss服务
+
+```shell
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/shunop/script/main/centos/install-shadowsocks.sh)"
+```
+
+
+
+
+
+# 解决报错
+
+## 1.连接 githubusercontent.com 超时
+
+> 连接 raw.githubusercontent.com 超时解决
 >
 > 报错解决curl: (7) Failed connect to raw.githubusercontent.com:443; Connection refused
 >

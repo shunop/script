@@ -170,6 +170,7 @@ elif [ "load" == "$1" ]; then
     mkdir $HOME/crontab
   fi
 
+  ## 添加自动更新重启定时任务
   ## curl -o ~/crontab/${v_name} https://raw.githubusercontent.com/shunop/script/main/centos/steam/automatic-dst.sh
   curl -fsSL https://raw.githubusercontent.com/shunop/script/main/centos/steam/automatic-dst.sh >~/crontab/${v_name} &&
     crontab -l 1>conf2021 2>/dev/null
