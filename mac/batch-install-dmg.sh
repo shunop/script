@@ -3,6 +3,7 @@
 ## Source: https://github.com/shunop/script
 ## Modified： 2021-01-16
 ## Version： v1.0.2
+## Status: 可用
 
 # todo: 支持pkg的安装
 # todo: 支持zip的安装
