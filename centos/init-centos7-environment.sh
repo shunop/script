@@ -5,6 +5,13 @@
 ## Modified： 2021-01-25
 ## Version： v1.0.0
 ## Description: Init centos environment
+## 未验证
+
+V_SSHD_PORT=19222
+
+random_string() {
+  cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w ${1:-32} | head -n 1
+}
 
 function f_init_firewall() {
   #  systemctl start firewalld
@@ -74,9 +81,13 @@ EOF
 
 
 function f_init_java() {
+  # 检查
+  rpm -qa | grep java
+  yum list installed | grep java
+
   v_arch=$(uname -m)
   v_x86_64='x86_64'
-  echo 'cpu架构是: $(uname -m)'
+  echo "cpu架构是: $(uname -m)"
 #  mkdir ~/wget && cd ~/wget
 #  wget -c https://download.oracle.com/otn/java/jdk/8u221-b11/230deb18db3e4014bb8e3e8324f81b43/jdk-8u221-linux-x64.tar.gz
   mkdir /usr/local/java
@@ -86,6 +97,53 @@ function f_init_java() {
   tar -zxvf ~/myupload/jdk-8u201-linux-x64.tar.gz -C /usr/local/java/
   # 创建软链接
   ln -s /usr/local/java/jdk1.8.0_201/bin/java /usr/bin/java
+}
+
+function f_init_redis() {
+#  不要执行此方法
+  REDIS_PASSWORD=$(random_string 32)
+  echo "redis password is : ${REDIS_PASSWORD}"
+  wget https://raw.githubusercontent.com/antirez/redis/4.0/redis.conf -O conf/redis.conf
+  sed -i 's/logfile ""/logfile "access.log"/g' conf/redis.conf
+  sed -i "s/# requirepass foobared/requirepass $REDIS_PASSWORD/g" conf/redis.conf
+  sed -i 's/appendonly no/appendonly yes/g' conf/redis.conf
+  docker run -di --name sofa_redis -p 16379:6379 -v /opt/myDocker/redis/data:/data -v /opt/myDocker/redis/conf/redis.conf:/etc/redis/redis.conf  redis  redis-server /etc/redis/redis.conf
+  docker  exec -it sofa_redis  redis-cli
+  # 防火墙
+  firewall-cmd --permanent --add-port=16379/tcp
+  firewall-cmd --reload
+}
+
+function f_init_yum() {
+  yum -y install tree
+  yum -y install lrzsz
+  yum -y install netcat
+  yum -y install telnet telnet-server
+}
+
+function f_init_deny_hosts() {
+  service crond status
+
+
+
+
+  # 参考 https://blog.csdn.net/mzc11/article/details/81842534
+  # echo "* * * * * hostname >> /tmp/tmp.txt" >> /var/spool/cron/root
+  # crontab -l > conf && echo "* * * * * hostname >> /tmp/tmp.txt" >> conf && crontab conf && rm -f conf
+}
+
+
+function f_init_change_ssh_port() {
+  ## status:ok
+#  防火墙
+  firewall-cmd --add-port=${V_SSHD_PORT}/tcp --permanent
+  firewall-cmd --reload
+# sshd 配置
+  cp /etc/ssh/sshd_config /etc/ssh/sshd_config_bak
+  sed -i "s/^Port 22/#Port 22\nPort ${V_SSHD_PORT}/g" /etc/ssh/sshd_config
+  ##不用变量的写法
+  ##sed -i 's/^Port 22/#Port 22\nPort 19222/g' /etc/ssh/sshd_config
+  systemctl restart sshd
 }
 
 # 初始化防火墙
