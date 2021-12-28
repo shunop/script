@@ -33,7 +33,9 @@ function f_init_pip() {
 ## 初始化swap交换区
 function f_init_swap() {
 #  参考 https://blog.csdn.net/duokongshi/article/details/80999077
-  if [ 0 -eq $(free | grep 'Swap' | awk '$2>1024*1024*1' | wc -l) ]; then
+#  if [ 0 -eq $(free | grep 'Swap' | awk '$2>1024*1024*1' | wc -l) ]; then
+  v_size=1024*1024*1
+  if [ $v_size -lt $(free | grep 'Swap' | awk '{print $2}') ]; then
     echo '开启 Swap'
     ## 大约 5G
     dd if=/dev/zero of=/swapfile bs=1024 count=5120k
@@ -135,6 +137,27 @@ function f_init_deny_hosts() {
 
 function f_init_change_ssh_port() {
   ## status:ok
+  #port的最大值其实可以达到65535（2^16 - 1)
+  #假定变量 a 为 10，变量 b 为 20：
+  #-eq	检测两个数是否相等，相等返回 true。	[ $a -eq $b ] 返回 false。
+  #-ne	检测两个数是否不相等，不相等返回 true。	[ $a -ne $b ] 返回 true。
+  #-gt	检测左边的数是否大于右边的，如果是，则返回 true。	[ $a -gt $b ] 返回 false。
+  #-lt	检测左边的数是否小于右边的，如果是，则返回 true。	[ $a -lt $b ] 返回 true。
+  #-ge	检测左边的数是否大于等于右边的，如果是，则返回 true。	[ $a -ge $b ] 返回 false。
+  #-le	检测左边的数是否小于等于右边的，如果是，则返回 true。	[ $a -le $b ] 返回 true。
+  v_min=2000
+  v_max=65535
+  if [ $v_min -lt $V_SSHD_PORT ] && [ $V_SSHD_PORT -lt $v_max ]
+  then
+    true
+  fi
+
+# 不在区间内
+  if (($V_SSHD_PORT < $v_min || $V_SSHD_PORT > $v_max)); then
+#    return 99
+    exit 
+  fi
+
 #  防火墙
   firewall-cmd --add-port=${V_SSHD_PORT}/tcp --permanent
   firewall-cmd --reload
