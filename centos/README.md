@@ -44,6 +44,30 @@ su - steamgame -c bash -c "$(curl -fsSL https://raw.githubusercontent.com/shunop
 
 
 
+## auto-denyhosts.sh
+
+> 自动拒绝ssh连接的服务
+
+```shell
+./auto-denyhosts.sh
+```
+
+或者使用 crontab 触发
+
+```shell
+*/3 * * * * /bin/bash  /root/crontab_execute_shell/auto-denyhosts.sh > /dev/null 2>&1 &
+```
+
+
+
+## init-centos7-environment.sh
+
+> 自动初始化 centos7 环境的脚本
+
+说明暂无
+
+
+
 ## install-shadowsocks.sh
 
 > 一键安装ss服务
