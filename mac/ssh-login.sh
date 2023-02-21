@@ -37,6 +37,22 @@ log_byellow(){ echo -e "\033[33m\033[01m\033[05m$*\033[0m";}
 log_red2(){ printf "\e[31m\e[01m $* \e[0m \n";}
 log_blue2(){ printf "\e[34m\e[01m $* \e[0m \n";}
 
+#
+# UTF8编码下，汉字通常是3个byte，通过它来判断【中英常见字符组成的字符串】中汉字的数量
+# 一个汉字占位是两个英文字符
+# 一个汉字替代了三个空格，但是字宽是个两个空格。
+#
+function count_zh_char() {
+    local zh_str="${1}"
+    local byte_count
+    local char_count
+    local zh_count
+    byte_count=$(printf "${zh_str}" | wc -c)
+    char_count=$(printf "${zh_str}" | wc -m)
+    zh_count=$(((byte_count - char_count) / 2))
+    echo ${zh_count}
+}
+
 
 config=''
 load_config() {
@@ -92,6 +108,7 @@ login_info_configure_check() {
 
 #  while [ $(eval echo \${LOGIN_INFO_${LOCAL_LOGIN_TAG_START}}) ]; do
   for index in "${!LOGIN_INFO_ARR[@]}"; do
+    # 字符串转为数组
     local LOGIN_INFO_LINE=(`echo ${LOGIN_INFO_ARR[$index]} | tr ',' ' '`)
 
     # 获得配置数组的元素总数
@@ -139,17 +156,29 @@ calculate_column_max_length() {
     if [ ${max_colum_user_ip} -lt ${#LOGIN_INFO_LINE[${index_user_ip}]} ];then
       max_colum_user_ip=${#LOGIN_INFO_LINE[${index_user_ip}]}
     fi
-    if [ ${max_colum_user_ip} -lt ${#LOGIN_INFO_LINE[${index_remark}]} ];then
-      max_colum_remark=${#LOGIN_INFO_LINE[${index_remark}]}
+    local hint_zh_count=$(count_zh_char "${LOGIN_INFO_LINE[${index_remark}]}")
+    local hint_width=$((hint_zh_count + ${max_colum_remark}))
+    local remark_length=${#LOGIN_INFO_LINE[${index_remark}]}
+    remark_length=`expr ${remark_length} + ${hint_zh_count}`
+    if [[ ${max_colum_remark} -lt ${remark_length} ]];then
+      max_colum_remark=${remark_length}
     fi
+#    if [ ${max_colum_remark} -lt `echo "${LOGIN_INFO_LINE[${index_remark}]}" | wc -m` ];then
+#      max_colum_remark=`echo "${LOGIN_INFO_LINE[${index_remark}]}" | wc -m`
+#    fi
+#    echo "max_colum_remark ${max_colum_remark}"
+#    echo "${#LOGIN_INFO_LINE[${index_remark}]} ---- `echo "${LOGIN_INFO_LINE[${index_remark}]}" | wc -m` "
+
   done
   max_colum_user_ip=`expr $max_colum_user_ip + 3`
   max_colum_remark=`expr $max_colum_remark + 3`
+#  max_colum_remark=70
 #  echo "${max_colum_user_ip} ---- ${max_colum_remark}"
 }
 #计算列最大值
 calculate_column_max_length
 
+# 每列一个颜色
 screen_echo_colum_color() {
 #  printf "%-8s |" '序号'
   printf " %-40s |" 'user@ip'
@@ -170,11 +199,12 @@ screen_echo_colum_color() {
 
 }
 
-screen_echo_line_color() {
+# 每行字体变色
+screen_echo_1line_font_color() {
   local LOCAL_LOGIN_TAG_START=${LOGIN_TAG_START}
 
 #  printf "%-8s |" '序号'
-  printf " %-${max_colum_user_ip}s |" 'user@ip'
+  printf " %-${max_colum_user_ip}s |" 'user@host'
   printf " %-2s|" '序号'
   printf " %-${max_colum_remark}s\n" '说明'
 
@@ -182,23 +212,27 @@ screen_echo_line_color() {
     local LOGIN_INFO_LINE=(`echo ${LOGIN_INFO_ARR[index]} | tr ',' ' '`)
 
     if [ `expr ${index} % 2` -eq 0 ]; then
-      printf "\e[32m %-${max_colum_user_ip}s | %-3s ｜ %-${max_colum_remark}s \e[0m\n" "$(eval echo \${LOGIN_INFO_LINE[${index_user_ip}]})" "${index}" "$(eval echo \${LOGIN_INFO_LINE[${index_remark}]})"
+      printf "\e[32m"
     else
-      printf "\e[0m %-${max_colum_user_ip}s | %-3s ｜ %-${max_colum_remark}s \e[0m\n" "$(eval echo \${LOGIN_INFO_LINE[${index_user_ip}]})" "${index}" "$(eval echo \${LOGIN_INFO_LINE[${index_remark}]})"
+      printf "\e[0m"
     fi
+    printf " %-${max_colum_user_ip}s | %-3s ｜ %-${max_colum_remark}s \n" "$(eval echo \${LOGIN_INFO_LINE[${index_user_ip}]})" "${index}" "$(eval echo \${LOGIN_INFO_LINE[${index_remark}]})"
   done
+  printf "\e[0m %s \e[0m \n" ""
   # 服务器总数
   USER_SUM=${#LOGIN_INFO_ARR[*]}
 }
 
-color_flag=1 # 1是不开启颜色 0是开启
-screen_echo_line_color2() {
+# 每两行字体变色
+screen_echo_2line_font_color() {
   local LOCAL_LOGIN_TAG_START=${LOGIN_TAG_START}
 
 #  printf "%-8s |" '序号'
-  printf " %-${max_colum_user_ip}s |" 'user@ip'
+  printf " %-${max_colum_user_ip}s |" 'user@host'
   printf " %-2s|" '序号'
   printf " %-${max_colum_remark}s\n" '说明'
+
+  local color_flag=1 # 1是不开启颜色 0是开启
 
   for index in "${!LOGIN_INFO_ARR[@]}"; do
     local LOGIN_INFO_LINE=(`echo ${LOGIN_INFO_ARR[index]} | tr ',' ' '`)
@@ -206,21 +240,126 @@ screen_echo_line_color2() {
     if [ `expr ${index} % 2` -eq 0 ]; then
       if [ ${color_flag} -eq 1 ];then
         color_flag=0
-        printf "\e[32m"
+        head_color="\e[32m"
       else
         color_flag=1
-        printf "\e[0m"
+        head_color="\e[0m"
       fi
     fi
-      printf " %-${max_colum_user_ip}s | %-3s ｜ %-${max_colum_remark}s \n" "$(eval echo \${LOGIN_INFO_LINE[${index_user_ip}]})" "${index}" "$(eval echo \${LOGIN_INFO_LINE[${index_remark}]})"
+    printf "${head_color} %-${max_colum_user_ip}s | %-3s ｜ %-${max_colum_remark}s \n" "$(eval echo \${LOGIN_INFO_LINE[${index_user_ip}]})" "${index}" "$(eval echo \${LOGIN_INFO_LINE[${index_remark}]})"
   done
   printf "\e[0m %s \e[0m \n" ""
   # 服务器总数
   USER_SUM=${#LOGIN_INFO_ARR[*]}
 }
 
+
+#每行背景变色
+screen_echo_1line_background_color() {
+  local LOCAL_LOGIN_TAG_START=${LOGIN_TAG_START}
+
+#   echo "${max_colum_remark}"
+#  title=$(printf "%${max_colum_user_ip}s | %-3s | %-${max_colum_remark}s | \n" 'user@host' 'id' 'remark')
+#  echo "\033[37;41m ${title} \033[0m"
+
+  # 处理中文字符占位符为2的问题
+  local hint_zh_count=$(count_zh_char "说明")
+  local hint_width=$((hint_zh_count + ${max_colum_remark}))
+  printf "|\033[37;41m %${max_colum_user_ip}s | %-3s | %-${hint_width}s \033[0m| \n" 'user@host' 'id' '说明'
+
+  for index in "${!LOGIN_INFO_ARR[@]}"; do
+    local LOGIN_INFO_LINE=(`echo ${LOGIN_INFO_ARR[index]} | tr ',' ' '`)
+
+    # 处理中文字符占位符为2的问题
+    local hint_zh_count=$(count_zh_char "${LOGIN_INFO_LINE[${index_remark}]}")
+    local hint_width=$((hint_zh_count + ${max_colum_remark}))
+
+#    if [ `expr ${index} % 2` -eq 0 ]; then
+#      printf "\e[30;46m %${max_colum_user_ip}s | %-3s | %-${hint_width}s \e[0m| \n" "$(eval echo \${LOGIN_INFO_LINE[${index_user_ip}]})" "${index}" "$(eval echo \${LOGIN_INFO_LINE[${index_remark}]})"
+#    else
+#      printf "\e[30;47m %${max_colum_user_ip}s | %-3s | %-${hint_width}s \e[0m| \n" "$(eval echo \${LOGIN_INFO_LINE[${index_user_ip}]})" "${index}" "$(eval echo \${LOGIN_INFO_LINE[${index_remark}]})"
+#    fi
+
+
+#    if [ `expr ${index} % 2` -eq 0 ]; then
+#      printf "\e[30;42m %${max_colum_user_ip}s | %-3s | %-${hint_width}s \e[0m| \n" "$(eval echo \${LOGIN_INFO_LINE[${index_user_ip}]})" "${index}" "$(eval echo \${LOGIN_INFO_LINE[${index_remark}]})"
+#    else
+#      printf "\e[30;43m %${max_colum_user_ip}s | %-3s | %-${hint_width}s \e[0m| \n" "$(eval echo \${LOGIN_INFO_LINE[${index_user_ip}]})" "${index}" "$(eval echo \${LOGIN_INFO_LINE[${index_remark}]})"
+#    fi
+    if [ `expr ${index} % 2` -eq 0 ]; then
+       head_color="\e[30;46m"
+    else
+      head_color="\e[30;47m"
+    fi
+    printf "|${head_color} %-${max_colum_user_ip}s | %-3s ｜ %-${hint_width}s \e[0m| \n" "$(eval echo \${LOGIN_INFO_LINE[${index_user_ip}]})" "${index}" "$(eval echo \${LOGIN_INFO_LINE[${index_remark}]})"
+  done
+  printf "\e[0m %s \e[0m \n" ""
+  # 服务器总数
+  USER_SUM=${#LOGIN_INFO_ARR[*]}
+}
+
+
+# 每两行字体变色
+screen_echo_2line_background_color() {
+  local LOCAL_LOGIN_TAG_START=${LOGIN_TAG_START}
+
+  # 处理中文字符占位符为2的问题
+  local hint_zh_count=$(count_zh_char "说明")
+  local hint_width=$((hint_zh_count + ${max_colum_remark}))
+  printf "|\e[37;41m %${max_colum_user_ip}s | %-3s | %-${hint_width}s \e[0m| \n" 'user@host' 'id' '说明'
+
+  local color_flag=1 # 1是不开启颜色 0是开启
+  _font_blue_background_write="\e[34;47m"
+  _font_purple_background_write="\e[35;47m"
+  _font_blue_background_cyan="\e[34;46m"
+
+# 0 _font_black _background_black
+# 1 _font_red _background_red
+# 2 _font_green _background_green
+# 3 _font_yellow _background_yellow
+# 4 _font_blue _background_blue
+# 5 _font_purple _background_purple
+# 6 _font_cyan _background_cyan
+# 7 _font_white _background_white
+
+  head_color=${_font_purple_background_write}
+
+  for index in "${!LOGIN_INFO_ARR[@]}"; do
+    local LOGIN_INFO_LINE=(`echo ${LOGIN_INFO_ARR[index]} | tr ',' ' '`)
+
+    # 处理中文字符占位符为2的问题
+    local hint_zh_count=$(count_zh_char "${LOGIN_INFO_LINE[${index_remark}]}")
+    local hint_width=$((hint_zh_count + ${max_colum_remark}))
+
+#        printf "\e[30;43m %${max_colum_user_ip}s | %-3s | %-${hint_width}s | \e[0m\n" "$(eval echo \${LOGIN_INFO_LINE[${index_user_ip}]})" "${index}" "$(eval echo \${LOGIN_INFO_LINE[${index_remark}]})"
+    printf "|${head_color} %${max_colum_user_ip}s | %-3s | %-${hint_width}s \e[0m| " "$(eval echo \${LOGIN_INFO_LINE[${index_user_ip}]})" "${index}" "$(eval echo \${LOGIN_INFO_LINE[${index_remark}]})"
+    printf " \e[30;40m%-18s| \e[0m \n" "${LOGIN_INFO_LINE[${index_pwd}]}"
+
+    if [ `expr ${index} % 2` -eq 0 ]; then
+      if [ ${color_flag} -eq 1 ];then
+        color_flag=0
+        head_color=${_font_blue_background_cyan}
+      else
+        color_flag=1
+        head_color=${_font_purple_background_write}
+      fi
+    fi
+
+
+  done
+  printf "\e[0m %s \e[0m \n" ""
+  # 服务器总数
+  USER_SUM=${#LOGIN_INFO_ARR[*]}
+}
+
+
 # 调用屏幕输出信息函数
-screen_echo_line_color2
+#screen_echo_colum_color
+#screen_echo_1line_font_color
+#screen_echo_2line_font_color
+#screen_echo_1line_background_color
+screen_echo_2line_background_color
+
 
 while true; do
 
