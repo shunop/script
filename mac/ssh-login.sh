@@ -76,7 +76,16 @@ load_config $@
 init_config() {
   local v_config_type="$1"
 #  config=$(echo $config | tr ' ' '\n' | sort -n)
-  config=$(echo $config | tr ' ' '\n' | sort -t',' -k5)
+#  config=$(echo $config | tr ' ' '\n' | sort -t',' -k5)
+  config=$(echo $config | tr ' ' '\n' | awk -F '[,@.]' '{print $2,$3,$4,$5,$1,$0}'| sort -k1,1n -k2,2n -k3,3n -k4,4n -k5 | cut -d ' ' -f6-)
+  #上述命令的含义是：首先使用awk命令将每一行要排序的字段提取出来，后面并跟上整行输出（{print $2,$3,$4,$5,$1,$0}）；然后使用sort命令按照前5个字段进行排序（-k1,1n表示按照第一个字段的数值排序）；最后使用cut命令去掉输出中的前5个字段字段（-d' ' -f6-表示使用空格作为分隔符，保留第六个字段及其之后的内容）。
+  #通过这种方式，我们可以使用多个不同的分隔符进行排序。具体来说，可以在awk命令中使用正则表达式指定分隔符，然后再使用sort和cut命令对指定的字段进行排序和输出。
+  #  详细说明
+  #  使用awk命令将每行文本分隔成多个字段，分隔符为逗号、at符号、点号；
+  #  用print命令输出第2~5个字段和第1个字段和整个文本本身，其中第1个字段是用户名，后面四个字段是IP地址的四个数字，最后一个是整个文本本身；
+  #  用sort命令按照第1个、第2个、第3个和第4个字段分别进行数字排序，如果数字相同，就按照第5个字段进行排序；
+  #  用cut命令删除输出结果中的前5个字段，只保留整行文本。
+  #  这个脚本的作用是将输入文件中的每一行进行排序，首先按照IP地址的四个数字进行升序排序，如果IP地址的四个数字相同，就按照用户名进行排序。最终输出的结果是将整个行的文本保留，而且按照排序后的顺序进行了排列。
   declare -i index=0
   for line in $config; do
     if [[ "#" == $(echo $line | cut -c1) ]]; then
@@ -321,6 +330,8 @@ screen_echo_2line_background_color() {
 # 5 _font_purple _background_purple
 # 6 _font_cyan _background_cyan
 # 7 _font_white _background_white
+## 显示shell的前景色和背景色
+## for i in {0..7}; do for j in {0..7}; do print "\033[3${i};4${j}m文字色值 3${i}, 背景色值 4${j}\033[0m"; done ;done
 
   head_color=${_font_purple_background_write}
 
