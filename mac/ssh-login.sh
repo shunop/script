@@ -321,6 +321,7 @@ screen_echo_2line_background_color() {
   local color_flag=1 # 1是不开启颜色 0是开启
   _font_blue_background_write="\e[34;47m"
   _font_purple_background_write="\e[35;47m"
+  _font_black_background_write="\e[30;47m"
   _font_blue_background_cyan="\e[34;46m"
 
 # 0 _font_black _background_black
@@ -334,7 +335,10 @@ screen_echo_2line_background_color() {
 ## 显示shell的前景色和背景色
 ## for i in {0..7}; do for j in {0..7}; do print "\033[3${i};4${j}m文字色值 3${i}, 背景色值 4${j}\033[0m"; done ;done
 
-  head_color=${_font_purple_background_write}
+  head_color_1=${_font_black_background_write}
+  head_color_2=${_font_blue_background_cyan}
+
+  head_color=${head_color_1}
 
   for index in "${!LOGIN_INFO_ARR[@]}"; do
     local LOGIN_INFO_LINE=(`echo ${LOGIN_INFO_ARR[index]} | tr ',' ' '`)
@@ -350,10 +354,10 @@ screen_echo_2line_background_color() {
     if [ `expr ${index} % 2` -eq 0 ]; then
       if [ ${color_flag} -eq 1 ];then
         color_flag=0
-        head_color=${_font_blue_background_cyan}
+        head_color=${head_color_2}
       else
         color_flag=1
-        head_color=${_font_purple_background_write}
+        head_color=${head_color_1}
       fi
     fi
 
