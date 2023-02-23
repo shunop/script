@@ -276,7 +276,7 @@ function f_screen_echo_2line_background_color() {
   local hint_width=$((hint_zh_count + ${max_colum_remark}))
   printf "|\e[37;41m %${max_colum_user_ip}s | %-3s | %-${hint_width}s \e[0m| \n" 'user@host' 'id' '说明'
 
-  local color_flag=1 # 1是不开启颜色 0是开启
+  local color_flag=0 # 1是不开启颜色 0是开启
   _font_blue_background_write="\e[34;47m"
   _font_purple_background_write="\e[35;47m"
   _font_black_background_write="\e[30;47m"
@@ -306,8 +306,6 @@ function f_screen_echo_2line_background_color() {
     local hint_zh_count=$(count_zh_char "${LOGIN_INFO_LINE[${idx_title}]}")
     local hint_width=$((hint_zh_count + ${max_colum_remark}))
 
-    printf "|${head_color} %${max_colum_user_ip}s | %-3s | %-${hint_width}s \e[0m| " "${LOGIN_INFO_LINE[${idx_username}]}@${LOGIN_INFO_LINE[${idx_hostname}]}" "${index}" "${LOGIN_INFO_LINE[${idx_title}]}"
-    printf " \e[30;40m%-18s| \e[0m \n" "${LOGIN_INFO_LINE[${idx_password}]}"
 
     if [ `expr ${index} % 2` -eq 0 ]; then
       if [ ${color_flag} -eq 1 ];then
@@ -318,6 +316,9 @@ function f_screen_echo_2line_background_color() {
         head_color=${head_color_1}
       fi
     fi
+    printf "|${head_color} %${max_colum_user_ip}s | %-3s | %-${hint_width}s \e[0m| " "${LOGIN_INFO_LINE[${idx_username}]}@${LOGIN_INFO_LINE[${idx_hostname}]}" "${index}" "${LOGIN_INFO_LINE[${idx_title}]}"
+    printf " \e[30;40m%-18s| \e[0m \n" "${LOGIN_INFO_LINE[${idx_password}]}"
+
 
 
   done
