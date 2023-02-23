@@ -158,14 +158,15 @@ login_info_configure_check() {
 # 调用登陆用户配置数组的检查
 login_info_configure_check
 
-max_colum_user_ip=1
-max_colum_remark=1
+max_colum_user_ip=1 # user@host 列的最大宽度
+max_colum_remark=1 # remark列的最大宽度
 calculate_column_max_length() {
   for index in "${!LOGIN_INFO_ARR[@]}"; do
     local LOGIN_INFO_LINE=(`echo ${LOGIN_INFO_ARR[index]} | tr ',' ' '`)
     if [ ${max_colum_user_ip} -lt ${#LOGIN_INFO_LINE[${index_user_ip}]} ];then
       max_colum_user_ip=${#LOGIN_INFO_LINE[${index_user_ip}]}
     fi
+    # 计算中文的个数，中文显示两个字宽（所以统计最大列宽时，需要统计两次中文字符），但是占用三个空格（所以在打印时，遇到中文需要再前面的基础上补一次中文的个数）
     local hint_zh_count=$(count_zh_char "${LOGIN_INFO_LINE[${index_remark}]}")
     local hint_width=$((hint_zh_count + ${max_colum_remark}))
     local remark_length=${#LOGIN_INFO_LINE[${index_remark}]}
@@ -194,7 +195,6 @@ screen_echo_colum_color() {
   printf " %-40s |" 'user@ip'
   printf " %-2s|" '序号'
   printf " %-40s\n" '说明'
-  local LOCAL_LOGIN_TAG_START=${LOGIN_TAG_START}
 
   for index in "${!LOGIN_INFO_ARR[@]}"; do
     local LOGIN_INFO_LINE=(`echo ${LOGIN_INFO_ARR[index]} | tr ',' ' '`)
@@ -211,7 +211,6 @@ screen_echo_colum_color() {
 
 # 每行字体变色
 screen_echo_1line_font_color() {
-  local LOCAL_LOGIN_TAG_START=${LOGIN_TAG_START}
 
 #  printf "%-8s |" '序号'
   printf " %-${max_colum_user_ip}s |" 'user@host'
@@ -235,7 +234,6 @@ screen_echo_1line_font_color() {
 
 # 每两行字体变色
 screen_echo_2line_font_color() {
-  local LOCAL_LOGIN_TAG_START=${LOGIN_TAG_START}
 
 #  printf "%-8s |" '序号'
   printf " %-${max_colum_user_ip}s |" 'user@host'
@@ -266,13 +264,13 @@ screen_echo_2line_font_color() {
 
 #每行背景变色
 screen_echo_1line_background_color() {
-  local LOCAL_LOGIN_TAG_START=${LOGIN_TAG_START}
 
 #   echo "${max_colum_remark}"
 #  title=$(printf "%${max_colum_user_ip}s | %-3s | %-${max_colum_remark}s | \n" 'user@host' 'id' 'remark')
 #  echo "\033[37;41m ${title} \033[0m"
 
   # 处理中文字符占位符为2的问题
+  # 计算中文的个数，中文显示两个字宽（所以统计最大列宽时，需要统计两次中文字符），但是占用三个空格（所以在打印时，遇到中文需要再前面的基础上补一次中文的个数）
   local hint_zh_count=$(count_zh_char "说明")
   local hint_width=$((hint_zh_count + ${max_colum_remark}))
   printf "|\033[37;41m %${max_colum_user_ip}s | %-3s | %-${hint_width}s \033[0m| \n" 'user@host' 'id' '说明'
@@ -281,6 +279,7 @@ screen_echo_1line_background_color() {
     local LOGIN_INFO_LINE=(`echo ${LOGIN_INFO_ARR[index]} | tr ',' ' '`)
 
     # 处理中文字符占位符为2的问题
+    # 计算中文的个数，中文显示两个字宽（所以统计最大列宽时，需要统计两次中文字符），但是占用三个空格（所以在打印时，遇到中文需要再前面的基础上补一次中文的个数）
     local hint_zh_count=$(count_zh_char "${LOGIN_INFO_LINE[${index_remark}]}")
     local hint_width=$((hint_zh_count + ${max_colum_remark}))
 
@@ -311,9 +310,9 @@ screen_echo_1line_background_color() {
 
 # 每两行字体变色
 screen_echo_2line_background_color() {
-  local LOCAL_LOGIN_TAG_START=${LOGIN_TAG_START}
 
   # 处理中文字符占位符为2的问题
+  # 计算中文的个数，中文显示两个字宽（所以统计最大列宽时，需要统计两次中文字符），但是占用三个空格（所以在打印时，遇到中文需要再前面的基础上补一次中文的个数）
   local hint_zh_count=$(count_zh_char "说明")
   local hint_width=$((hint_zh_count + ${max_colum_remark}))
   printf "|\e[37;41m %${max_colum_user_ip}s | %-3s | %-${hint_width}s \e[0m| \n" 'user@host' 'id' '说明'
@@ -344,6 +343,7 @@ screen_echo_2line_background_color() {
     local LOGIN_INFO_LINE=(`echo ${LOGIN_INFO_ARR[index]} | tr ',' ' '`)
 
     # 处理中文字符占位符为2的问题
+    # 计算中文的个数，中文显示两个字宽（所以统计最大列宽时，需要统计两次中文字符），但是占用三个空格（所以在打印时，遇到中文需要再前面的基础上补一次中文的个数）
     local hint_zh_count=$(count_zh_char "${LOGIN_INFO_LINE[${index_remark}]}")
     local hint_width=$((hint_zh_count + ${max_colum_remark}))
 
