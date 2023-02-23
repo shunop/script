@@ -407,12 +407,17 @@ while true; do
   break
 done
 
+select_type="${LOGIN_INFO_SELECT[${index_type}]}"
+select_pwd="${LOGIN_INFO_SELECT[${index_pwd}]}"
+select_user_ip="${LOGIN_INFO_SELECT[${index_user_ip}]}"
+select_port=${LOGIN_INFO_SELECT[${index_port}]}
+
 # 登陆的函数
 
 login_exec() {
   # 当登陆方式是密码时
-  if [ 'pwd' == "$(eval echo \${LOGIN_INFO_SELECT[${index_type}]})" ]; then
-    local mima=$(eval echo \${LOGIN_INFO_SELECT[${index_pwd}]})
+  if [ 'pwd' == "$(eval echo \${select_type})" ]; then
+    local mima=$(eval echo \${select_pwd})
 
     # 密码长度非 0 时
     if [[ -n ${mima} ]]; then
@@ -430,9 +435,9 @@ login_exec() {
   # 「exp_continue」继续执行下面的匹配
   # 「interact」留在远程终端上面。如果不写此语句，自动退出服务器
   expect -c "
-switch $(eval echo \${LOGIN_INFO_SELECT[${index_type}]}) {
+switch $(eval echo \${select_type}) {
     \"pwd\" {
-        spawn -noecho ssh -o ConnectTimeout=15 -o ConnectionAttempts=3 -o StrictHostKeyChecking=no -o ServerAliveInterval=15 -o ServerAliveCountMax=3 $(eval echo \${LOGIN_INFO_SELECT[${index_user_ip}]}) -p $(eval echo \${LOGIN_INFO_SELECT[${index_port}]})
+        spawn -noecho ssh -o ConnectTimeout=15 -o ConnectionAttempts=3 -o StrictHostKeyChecking=no -o ServerAliveInterval=15 -o ServerAliveCountMax=3 $(eval echo \${select_user_ip}) -p $(eval echo \${select_port})
         expect {
             *yes/no* { send yes\r exp_continue }
             *denied* { exit }
@@ -442,7 +447,7 @@ switch $(eval echo \${LOGIN_INFO_SELECT[${index_type}]}) {
         interact
     }
     \"key\" {
-        spawn -noecho ssh -o ConnectTimeout=15 -o ConnectionAttempts=3 -o StrictHostKeyChecking=no -o ServerAliveInterval=15 -o ServerAliveCountMax=3 -i $(eval echo \${LOGIN_INFO_SELECT[${index_pwd}]}) $(eval echo \${LOGIN_INFO_SELECT[${index_user_ip}]}) -p $(eval echo \${LOGIN_INFO_SELECT[${index_port}]})
+        spawn -noecho ssh -o ConnectTimeout=15 -o ConnectionAttempts=3 -o StrictHostKeyChecking=no -o ServerAliveInterval=15 -o ServerAliveCountMax=3 -i $(eval echo \${select_pwd}) $(eval echo \${select_user_ip}) -p $(eval echo \${select_port})
         interact
     }
     default {
