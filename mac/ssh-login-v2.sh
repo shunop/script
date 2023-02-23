@@ -230,9 +230,9 @@ function f_choice_server() {
       log_red2 '请输入存在的序号'
       continue
     fi
-    LOGIN_INFO_SELECT=(`echo ${LOGIN_INFO_ARR[LOGIN_NUM]} | tr ',' ' '`)
-    log_blue2 "选择的是 环境【${LOGIN_INFO_SELECT[${idx_environment}]}】\n 服务器【${LOGIN_INFO_SELECT[${idx_username}]}@${LOGIN_INFO_SELECT[${idx_hostname}]}】\n 标题【${LOGIN_INFO_SELECT[${idx_title}]}】 "
-    printf " \e[30;40m 密码【%s】 \e[0m \n" "${LOGIN_INFO_SELECT[${idx_password}]}"
+    LOGIN_INFO_SELECT=(`echo ${LOGIN_INFO_ARR[${CHOICE_SEVRICE_NUM}]} | tr ',' ' '`)
+    log_blue2 "选择的是【${CHOICE_SEVRICE_NUM}】 环境【${LOGIN_INFO_SELECT[${idx_environment}]}】\n 服务器【${LOGIN_INFO_SELECT[${idx_username}]}@${LOGIN_INFO_SELECT[${idx_hostname}]}】\n 标题【${LOGIN_INFO_SELECT[${idx_title}]}】 "
+    printf "\e[30;40m 密码【%s】 \e[0m \n" "${LOGIN_INFO_SELECT[${idx_password}]}"
     break
   done
 
