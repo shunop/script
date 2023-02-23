@@ -1,7 +1,7 @@
 #!/bin/bash
 
 
-g_conf_file="~/ssh-login.conf"
+g_conf_file="ssh-login.conf"
 def_length=8
 
 index_user_ip=0 # 用户名@主机
