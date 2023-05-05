@@ -10,9 +10,9 @@
 
 #################### 配置文件-开始 ####################
 #config=$(cat <<- EOF
-##build-test@172.16.46.41,22,build-test,pwd,cmft-ci
-#fc-capital@172.16.46.36,22,Cpyfzx@321,pwd,cmft-sit##资方中心
-#fc-capital@172.16.48.186,22,fc-capital,pwd,cmft-uat##资方中心
+##build-test@192.168.255.10,22,build-test,pwd,ci
+#user@192.168.255.10,22,123456,pwd,sit
+#user@192.168.255.10,22,123456,pwd,uat
 #EOF
 #)
 #################### 配置文件-结束 ####################
