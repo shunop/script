@@ -33,7 +33,7 @@ function f_init_yum_install() {
   echo "$(date)  =====安装一些工具包--end-success====="
 }
 function f_config_PS1() {
-    cat >> .bash_profile <<EOF
+    cat >> ${HOME}/.bash_profile <<EOF
 
 ## 终端高亮主机名和当前路径
 ##PS1='[\u@\h \W]\$ '
@@ -43,7 +43,7 @@ EOF
   echo "$(date)  =====高亮主机名--end-success====="
 }
 function f_config_history() {
-    cat >> .bash_profile << EOF
+    cat >> ${HOME}/.bash_profile << EOF
 
 # 历史命令显示操作时间
 if ! grep HISTTIMEFORMAT /etc/bashrc; then
