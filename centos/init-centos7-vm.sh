@@ -9,6 +9,9 @@ function f_config_yum_aliyun() {
   ## 使用阿里云Yum源CentOS7
   curl -o /etc/yum.repos.d/CentOS7-Aliyun.repo http://mirrors.aliyun.com/repo/Centos-7.repo
   curl -o /etc/yum.repos.d/epel-7-Aliyun.repo http://mirrors.aliyun.com/repo/epel-7.repo
+  ## 注释掉 mirrors.aliyuncs.com 和 mirrors.cloud.aliyuncs.com
+  sed -i '/aliyuncs/s/^/#/' /etc/yum.repos.d/CentOS7-Aliyun.repo
+  sed -i '/aliyuncs/s/^/#/' /etc/yum.repos.d/epel-7-Aliyun.repo
   ## 使用网易Yum源CentOS7
   #curl -o /etc/yum.repos.d/CentOS7-163-Base.repo http://mirrors.163.com/.help/CentOS7-Base-163.repo
   ## 更新缓存
