@@ -31,6 +31,7 @@ cd /opt/src/
 #wget https://storage.googleapis.com/tiziblog/xray.sh
 
 ## 配置 auto-denyhosts.sh
+curl -O https://raw.githubusercontent.com/shunop/script/main/centos/init-centos7-out.sh
 curl -O https://raw.githubusercontent.com/shunop/script/main/centos/auto-denyhosts.sh
 echo '120.244.60.*' >> /etc/whitelist.txt
 echo '*/1 * * * * /bin/bash /opt/src/auto-denyhosts.sh > /dev/null' >> /var/spool/cron/root

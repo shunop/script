@@ -67,6 +67,15 @@ su - steamgame -c bash -c "$(curl -fsSL https://raw.githubusercontent.com/shunop
 说明暂无
 
 
+## init-centos7-out.sh
+
+> 自动初始化 centos7 环境的脚本
+
+```shell
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/shunop/script/main/centos/init-centos7-out.sh)"
+```
+
+
 
 ## install-shadowsocks.sh
 
